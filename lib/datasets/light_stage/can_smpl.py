@@ -28,16 +28,24 @@ class Dataset(data.Dataset):
         if len(view) == 0:
             view = [0]
 
+        # prepare input images
         i = 0
         i = i + cfg.begin_i
         i_intv = cfg.i_intv
+        ni = cfg.ni
+        if cfg.test_novel_pose:
+            i = (i + cfg.ni) * i_intv
+            ni = cfg.novel_pose_ni
+            if self.human == 'CoreView_390':
+                i = 0
+
         self.ims = np.array([
             np.array(ims_data['ims'])[view]
-            for ims_data in annots['ims'][i:i + cfg.ni * i_intv][::i_intv]
+            for ims_data in annots['ims'][i:i + ni * i_intv][::i_intv]
         ]).ravel()
         self.cam_inds = np.array([
             np.arange(len(ims_data['ims']))[view]
-            for ims_data in annots['ims'][i:i + cfg.ni * i_intv][::i_intv]
+            for ims_data in annots['ims'][i:i + ni * i_intv][::i_intv]
         ]).ravel()
         self.num_cams = len(view)
 
@@ -144,28 +152,21 @@ class Dataset(data.Dataset):
         msk = cv2.resize(msk, (W, H), interpolation=cv2.INTER_NEAREST)
         if cfg.mask_bkgd:
             img[msk == 0] = 0
+            if cfg.white_bkgd:
+                img[msk == 0] = 1
         K[:2] = K[:2] * cfg.ratio
 
         if self.human in ['CoreView_313', 'CoreView_315']:
             i = int(os.path.basename(img_path).split('_')[4])
+            frame_index = i - 1
         else:
             i = int(os.path.basename(img_path)[:-4])
+            frame_index = i
         feature, coord, out_sh, can_bounds, bounds, Rh, Th, center, rot, trans = self.prepare_input(
             i)
 
-        if cfg.sample_smpl:
-            depth_path = os.path.join(self.data_root, 'depth',
-                                      self.ims[index])[:-4] + '.npy'
-            depth = np.load(depth_path)
-            rgb, ray_o, ray_d, near, far, coord_, mask_at_box = if_nerf_dutils.sample_smpl_ray(
-                img, msk, depth, K, R, T, self.nrays, self.split)
-        elif cfg.sample_grid:
-            # print('sample_grid')
-            rgb, ray_o, ray_d, near, far, coord_, mask_at_box = if_nerf_dutils.sample_ray_grid(
-                img, msk, K, R, T, can_bounds, self.nrays, self.split)
-        else:
-            rgb, ray_o, ray_d, near, far, coord_, mask_at_box = if_nerf_dutils.sample_ray_h36m(
-                img, msk, K, R, T, can_bounds, self.nrays, self.split)
+        rgb, ray_o, ray_d, near, far, coord_, mask_at_box = if_nerf_dutils.sample_ray_h36m(
+            img, msk, K, R, T, can_bounds, self.nrays, self.split)
         acc = if_nerf_dutils.get_acc(coord_, msk)
 
         ret = {
@@ -183,6 +184,8 @@ class Dataset(data.Dataset):
 
         R = cv2.Rodrigues(Rh)[0].astype(np.float32)
         i = index // self.num_cams
+        if cfg.test_novel_pose:
+            i = 0
         meta = {
             'bounds': bounds,
             'R': R,
@@ -191,6 +194,7 @@ class Dataset(data.Dataset):
             'rot': rot,
             'trans': trans,
             'i': i,
+            'frame_index': frame_index,
             'cam_ind': cam_ind
         }
         ret.update(meta)

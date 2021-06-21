@@ -6,16 +6,16 @@ train_dataset_path: 'lib/datasets/light_stage/snapshot_mesh.py'
 test_dataset_module: 'lib.datasets.light_stage.snapshot_mesh'
 test_dataset_path: 'lib/datasets/light_stage/snapshot_mesh.py'
 
-network_module: 'lib.networks.latent_xyz_mesh'
-network_path: 'lib/networks/latent_xyz_mesh.py'
+network_module: 'lib.networks.latent_xyz_meshc'
+network_path: 'lib/networks/latent_xyz_meshc.py'
 renderer_module: 'lib.networks.renderer.if_mesh_renderer'
 renderer_path: 'lib/networks/renderer/if_mesh_renderer.py'
 
 trainer_module: 'lib.train.trainers.if_nerf_clight'
 trainer_path: 'lib/train/trainers/if_nerf_clight.py'
 
-evaluator_module: 'lib.evaluators.dtu.skinning'
-evaluator_path: 'lib/evaluators/dtu/skinning.py'
+evaluator_module: 'lib.evaluators.if_nerf'
+evaluator_path: 'lib/evaluators/if_nerf.py'
 
 visualizer_module: 'lib.visualizers.if_nerf_mesh'
 visualizer_path: 'lib/visualizers/if_nerf_mesh.py'

@@ -1,18 +1,18 @@
 task: 'if_nerf'
 gpus: [0]
 
-train_dataset_module: 'lib.datasets.light_stage.tpose'
-train_dataset_path: 'lib/datasets/light_stage/tpose.py'
-test_dataset_module: 'lib.datasets.light_stage.tpose'
-test_dataset_path: 'lib/datasets/light_stage/tpose.py'
+train_dataset_module: 'lib.datasets.h36m.can_smpl'
+train_dataset_path: 'lib/datasets/h36m/can_smpl.py'
+test_dataset_module: 'lib.datasets.h36m.can_smpl'
+test_dataset_path: 'lib/datasets/h36m/can_smpl.py'
 
-network_module: 'lib.networks.tpose_xyzc'
-network_path: 'lib/networks/tpose_xyzc.py'
-renderer_module: 'lib.networks.renderer.tpose_renderer'
-renderer_path: 'lib/networks/renderer/tpose_renderer.py'
+network_module: 'lib.networks.latent_xyzc'
+network_path: 'lib/networks/latent_xyzc.py'
+renderer_module: 'lib.networks.renderer.if_clight_renderer'
+renderer_path: 'lib/networks/renderer/if_clight_renderer.py'
 
-trainer_module: 'lib.train.trainers.tpose'
-trainer_path: 'lib/train/trainers/tpose.py'
+trainer_module: 'lib.train.trainers.if_nerf_clight'
+trainer_path: 'lib/train/trainers/if_nerf_clight.py'
 
 evaluator_module: 'lib.evaluators.if_nerf'
 evaluator_path: 'lib/evaluators/if_nerf.py'
@@ -20,10 +20,10 @@ evaluator_path: 'lib/evaluators/if_nerf.py'
 visualizer_module: 'lib.visualizers.if_nerf'
 visualizer_path: 'lib/visualizers/if_nerf.py'
 
-human: 315
+human: 396
 
 train:
-    dataset: Human315_0001_Train
+    dataset: H36M_S11G_Train
     batch_size: 1
     collator: ''
     lr: 5e-4
@@ -36,7 +36,7 @@ train:
     num_workers: 16
 
 test:
-    dataset: Human315_0001_Test
+    dataset: H36M_S11G_Test
     sampler: 'FrameSampler'
     batch_size: 1
     collator: ''
@@ -81,16 +81,19 @@ white_bkgd: False
 render_views: 50
 
 # data options
-res: 256
-ratio: 0.5
+H: 1002
+W: 1000
+ratio: 1.
+training_view: [0, 1, 2, 3]
 intv: 6
-ni: 100
+begin_i: 1200
+ni: 400
 smpl: 'smpl'
+vertices: 'vertices'
 params: 'params'
+big_box: True
 
-voxel_size: [0.005, 0.005, 0.005]  # feature volume at t pose
-ptot_vsize: [0.025, 0.025, 0.025]  # points at t pose
+voxel_size: [0.005, 0.005, 0.005]  # dhw
 
 # record options
 log_interval: 1
-record_interval: 20

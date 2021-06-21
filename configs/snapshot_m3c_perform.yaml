@@ -1,15 +1,15 @@
 task: 'if_nerf'
 gpus: [0]
 
-train_dataset_module: 'lib.datasets.h36m.can_smpl'
-train_dataset_path: 'lib/datasets/h36m/can_smpl.py'
-test_dataset_module: 'lib.datasets.h36m.can_smpl'
-test_dataset_path: 'lib/datasets/h36m/can_smpl.py'
+train_dataset_module: 'lib.datasets.light_stage.snapshot'
+train_dataset_path: 'lib/datasets/light_stage/snapshot.py'
+test_dataset_module: 'lib.datasets.light_stage.snapshot'
+test_dataset_path: 'lib/datasets/light_stage/snapshot.py'
 
-network_module: 'lib.networks.latent_xyzc'
-network_path: 'lib/networks/latent_xyzc.py'
-renderer_module: 'lib.networks.renderer.if_clight_renderer'
-renderer_path: 'lib/networks/renderer/if_clight_renderer.py'
+network_module: 'lib.networks.latent_xyz'
+network_path: 'lib/networks/latent_xyz.py'
+renderer_module: 'lib.networks.renderer.if_clight_renderer_msk'
+renderer_path: 'lib/networks/renderer/if_clight_renderer_msk.py'
 
 trainer_module: 'lib.train.trainers.if_nerf_clight'
 trainer_path: 'lib/train/trainers/if_nerf_clight.py'
@@ -17,13 +17,11 @@ trainer_path: 'lib/train/trainers/if_nerf_clight.py'
 evaluator_module: 'lib.evaluators.if_nerf'
 evaluator_path: 'lib/evaluators/if_nerf.py'
 
-visualizer_module: 'lib.visualizers.if_nerf'
-visualizer_path: 'lib/visualizers/if_nerf.py'
-
-human: 396
+visualizer_module: 'lib.visualizers.if_nerf_perform'
+visualizer_path: 'lib/visualizers/if_nerf_perform.py'
 
 train:
-    dataset: H36M_S9P_Train
+    dataset: Male_3_casual_Train
     batch_size: 1
     collator: ''
     lr: 5e-4
@@ -36,13 +34,12 @@ train:
     num_workers: 16
 
 test:
-    dataset: H36M_S9P_Test
-    sampler: 'FrameSampler'
+    dataset: Male_3_casual_Test
     batch_size: 1
     collator: ''
 
 ep_iter: 500
-save_ep: 20
+save_ep: 100
 eval_ep: 1000
 
 # training options
@@ -75,22 +72,19 @@ N_rand: 1024
 near: 1
 far: 3
 
-perturb: 1
+perturb: 0
 white_bkgd: False
 
 render_views: 50
 
 # data options
 res: 256
-ratio: 1.
-training_view: [0, 1, 2, 3]
-intv: 6
-begin_i: 1000
-ni: 300
-smpl: 'smpl'
-vertices: 'vertices'
-params: 'params'
-big_box: True
+ratio: 0.5
+begin_i: 0
+ni: 235
+
+H: 1080
+W: 1080
 
 voxel_size: [0.005, 0.005, 0.005]  # dhw
 

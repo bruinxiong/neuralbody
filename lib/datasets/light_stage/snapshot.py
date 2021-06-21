@@ -30,7 +30,7 @@ class Dataset(data.Dataset):
         self.nrays = cfg.N_rand
 
     def prepare_input(self, i):
-        # read xyz, normal, color from the ply file
+        # read xyz, normal, color from the npy file
         vertices_path = os.path.join(self.data_root, 'vertices',
                                      '{}.npy'.format(i))
         xyz = np.load(vertices_path).astype(np.float32)
@@ -84,6 +84,8 @@ class Dataset(data.Dataset):
         msk_path = os.path.join(self.data_root, 'mask', '{}.png'.format(index))
         msk = imageio.imread(msk_path)
 
+        frame_index = index
+
         K = self.cam['K']
         D = self.cam['D']
         img = cv2.undistort(img, K, D)
@@ -100,7 +102,10 @@ class Dataset(data.Dataset):
         H, W = int(img.shape[0] * cfg.ratio), int(img.shape[1] * cfg.ratio)
         img = cv2.resize(img, (W, H), interpolation=cv2.INTER_AREA)
         msk = cv2.resize(msk, (W, H), interpolation=cv2.INTER_NEAREST)
-        img[msk == 0] = 0
+        if cfg.mask_bkgd:
+            img[msk == 0] = 0
+            if cfg.white_bkgd:
+                img[msk == 0] = 1
         K = K.copy().astype(np.float32)
         K[:2] = K[:2] * cfg.ratio
 
@@ -129,7 +134,7 @@ class Dataset(data.Dataset):
             'rot': rot,
             'trans': trans,
             'i': index,
-            'index': 0
+            'index': frame_index
         }
         ret.update(meta)
 
